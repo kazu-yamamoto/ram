@@ -61,7 +61,7 @@ import           Data.Word (Word8)
 import           Data.Proxy (Proxy(..))
 import           Data.Maybe (fromMaybe)
 import           GHC.TypeLits (KnownNat, Nat, natVal, type (+), type (<=))
-import           Data.Memory.Internal.DeepSeq (NFData)
+import           Control.DeepSeq(NFData(..))
 import           Foreign.Storable
 import           Foreign.Ptr
 

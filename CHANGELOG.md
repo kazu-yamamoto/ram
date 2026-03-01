@@ -1,3 +1,7 @@
+## 0.20
++ Drop Data.Internal.Memory.Deepseq module to prevent confusion.
+  we can just use the one from deepseq.
+
 ## 0.19
 + Forked from memory
 + Dropped all dependencies for basement and the like

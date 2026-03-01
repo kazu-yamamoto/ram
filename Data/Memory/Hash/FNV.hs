@@ -31,6 +31,7 @@ import           GHC.Word
 import           GHC.Prim hiding (Word64#, Int64#)
 import           GHC.Types
 import           GHC.Ptr
+import           Control.DeepSeq(NFData(..))
 
 -- | FNV1(a) hash (32 bit variants)
 newtype FnvHash32 = FnvHash32 Word32
