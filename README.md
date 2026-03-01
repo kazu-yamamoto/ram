@@ -18,22 +18,5 @@ Also provides some useful helpers:
 * Fast Hashing : [SipHash](https://131002.net/siphash/), [FNV1](http://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function).
 * Built-in base encoding : Base16, Base32, [Base64](http://en.wikipedia.org/wiki/Base64).
 
-Versioning
-----------
 
-Development versions are an incremental number prefixed by 0.
-No specific meaning is associated with the versions, specially
-no API stability.
 
-Production versions : TBD
-
-Coding Style
-------------
-
-The coding style of this project mostly follows:
-[haskell-style](https://github.com/tibbe/haskell-style-guide/blob/master/haskell-style.md)
-
-Support
--------
-
-See [Haskell packages guidelines](https://github.com/vincenthz/haskell-pkg-guidelines/blob/master/README.md#support)
