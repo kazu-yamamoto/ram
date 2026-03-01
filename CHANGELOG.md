@@ -1,3 +1,8 @@
+## 0.20.1
++ Remove `WITH_BYTESTRING_SUPPORT` CPP flag. `ByteString` instances for
+  `ByteArrayAccess` and `ByteArray` are now always compiled in, since
+  `bytestring` is an unconditional dependency.
+
 ## 0.20
 + Drop Data.Internal.Memory.Deepseq module to prevent confusion.
   we can just use the one from deepseq.

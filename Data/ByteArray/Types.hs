@@ -5,7 +5,6 @@
 -- Stability   : stable
 -- Portability : Good
 --
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE Rank2Types    #-}
 {-# LANGUAGE TypeOperators #-}
@@ -18,12 +17,9 @@ module Data.ByteArray.Types
 
 import           Foreign.Ptr
 import           Data.Monoid
-
-#ifdef WITH_BYTESTRING_SUPPORT
 import qualified Data.ByteString as Bytestring (length)
 import qualified Data.ByteString.Internal as Bytestring
 import           Foreign.ForeignPtr (withForeignPtr)
-#endif
 
 import           Data.Memory.PtrMethods (memCopy)
 
@@ -52,7 +48,6 @@ class (Eq ba, Ord ba, Monoid ba, ByteArrayAccess ba) => ByteArray ba where
               -> (Ptr p -> IO a)
               -> IO (a, ba)
 
-#ifdef WITH_BYTESTRING_SUPPORT
 instance ByteArrayAccess Bytestring.ByteString where
     length = Bytestring.length
     withByteArray (Bytestring.PS fptr off _) f = withForeignPtr fptr $ \ptr -> f $! (ptr `plusPtr` off)
@@ -62,5 +57,4 @@ instance ByteArray Bytestring.ByteString where
         fptr <- Bytestring.mallocByteString sz
         r    <- withForeignPtr fptr (f . castPtr)
         return (r, Bytestring.PS fptr 0 sz)
-#endif
 

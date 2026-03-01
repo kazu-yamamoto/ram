@@ -1,6 +1,6 @@
 cabal-version:   3.0
 name:            ram
-version:         0.20.0
+version:         0.20.1
 synopsis:        memory and related abstraction stuff
 description:
   This is a fork of memory. It's open to accept changes from anyone,
@@ -102,7 +102,7 @@ test-suite test-memory
   build-depends:
     , base        <5
     , bytestring
-    , memory
+    , ram
     , QuickCheck
     , tasty
 
