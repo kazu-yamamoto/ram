@@ -24,8 +24,7 @@ module Data.Memory.Hash.FNV
     , fnv1a_64
     ) where
 
-import           Basement.Bits
-import           Basement.IntegralConv
+import           Data.Bits (xor)
 import           Data.Memory.Internal.Compat ()
 import           Data.Memory.Internal.Imports
 import           GHC.Word
@@ -42,19 +41,19 @@ newtype FnvHash64 = FnvHash64 Word64
     deriving (Show,Eq,Ord,NFData)
 
 fnv1_32_Mix8 :: Word8 -> FnvHash32 -> FnvHash32
-fnv1_32_Mix8 !w (FnvHash32 acc) = FnvHash32 ((0x01000193 * acc) .^. integralUpsize w)
+fnv1_32_Mix8 !w (FnvHash32 acc) = FnvHash32 (xor (0x01000193 * acc) (fromIntegral w))
 {-# INLINE fnv1_32_Mix8 #-}
 
 fnv1a_32_Mix8 :: Word8 -> FnvHash32 -> FnvHash32
-fnv1a_32_Mix8 !w (FnvHash32 acc) = FnvHash32 (0x01000193 * (acc .^. integralUpsize w))
+fnv1a_32_Mix8 !w (FnvHash32 acc) = FnvHash32 (0x01000193 * xor acc (fromIntegral w))
 {-# INLINE fnv1a_32_Mix8 #-}
 
 fnv1_64_Mix8 :: Word8 -> FnvHash64 -> FnvHash64
-fnv1_64_Mix8 !w (FnvHash64 acc) = FnvHash64 ((0x100000001b3 * acc) .^. integralUpsize w)
+fnv1_64_Mix8 !w (FnvHash64 acc) = FnvHash64 (xor (0x100000001b3 * acc) (fromIntegral w))
 {-# INLINE fnv1_64_Mix8 #-}
 
 fnv1a_64_Mix8 :: Word8 -> FnvHash64 -> FnvHash64
-fnv1a_64_Mix8 !w (FnvHash64 acc) = FnvHash64 (0x100000001b3 * (acc .^. integralUpsize w))
+fnv1a_64_Mix8 !w (FnvHash64 acc) = FnvHash64 (0x100000001b3 * xor acc (fromIntegral w))
 {-# INLINE fnv1a_64_Mix8 #-}
 
 -- | compute FNV1 (32 bit variant) of a raw piece of memory

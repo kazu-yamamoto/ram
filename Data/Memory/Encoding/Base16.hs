@@ -23,8 +23,7 @@ module Data.Memory.Encoding.Base16
 
 import           Data.Memory.Internal.Compat
 import           Data.Word
-import           Basement.Bits
-import           Basement.IntegralConv
+import           Data.Bits ((.|.))
 import           GHC.Prim
 import           GHC.Types
 import           GHC.Word
@@ -66,7 +65,7 @@ showHexadecimal withPtr = doChunks 0
                          (byteIndex (ofs+2) p) (byteIndex (ofs+3) p)
 
         wToChar :: Word8 -> Char
-        wToChar w = chr (integralUpsize w)
+        wToChar w = chr (fromIntegral w)
 
         byteIndex :: Int -> Ptr Word8 -> IO Word8
         byteIndex i p = peekByteOff p i
@@ -94,7 +93,7 @@ toHexadecimal bout bin n = loop 0
 convertByte :: Word8 -> (# Word8, Word8 #)
 convertByte bwrap = (# r tableHi b, r tableLo b #)
   where
-        !(W# b) = integralUpsize bwrap
+        !(W# b) = fromIntegral bwrap
         r :: Addr# -> Word# -> Word8
         r table index = W8# (indexWord8OffAddr# table (word2Int# index))
 
@@ -136,9 +135,9 @@ fromHexadecimal dst src n
 
         rLo, rHi :: Word8 -> Word8
         rLo index = W8# (indexWord8OffAddr# tableLo (word2Int# widx))
-          where !(W# widx) = integralUpsize index
+          where !(W# widx) = fromIntegral index
         rHi index = W8# (indexWord8OffAddr# tableHi (word2Int# widx))
-          where !(W# widx) = integralUpsize index
+          where !(W# widx) = fromIntegral index
         
         !tableLo =
                 "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\

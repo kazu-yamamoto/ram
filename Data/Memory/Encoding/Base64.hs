@@ -28,8 +28,7 @@ module Data.Memory.Encoding.Base64
 
 import           Data.Memory.Internal.Compat
 import           Data.Memory.Internal.Imports
-import           Basement.Bits
-import           Basement.IntegralConv (integralUpsize)
+import           Data.Bits ((.&.), (.|.))
 import           GHC.Prim
 import           GHC.Word
 import           Foreign.Storable
@@ -92,15 +91,15 @@ toBase64Internal table dst src len padded = loop 0 0
 
 convert3 :: Addr# -> Word8 -> Word8 -> Word8 -> (Word8, Word8, Word8, Word8)
 convert3 table !a !b !c =
-    let !w = a .>>. 2
-        !x = ((a .<<. 4) .&. 0x30) .|. (b .>>. 4)
-        !y = ((b .<<. 2) .&. 0x3c) .|. (c .>>. 6)
+    let !w = a `unsafeShiftR` 2
+        !x = ((a `unsafeShiftL` 4) .&. 0x30) .|. (b `unsafeShiftR` 4)
+        !y = ((b `unsafeShiftL` 2) .&. 0x3c) .|. (c `unsafeShiftR` 6)
         !z = c .&. 0x3f
      in (index w, index x, index y, index z)
   where
         index :: Word8 -> Word8
         index !idxb = W8# (indexWord8OffAddr# table (word2Int# idx))
-          where !(W# idx) = integralUpsize idxb
+          where !(W# idx) = fromIntegral idxb
 
 -- | Get the length needed for the destination buffer for a base64 decoding.
 --
@@ -212,7 +211,7 @@ fromBase64Unpadded rset dst src len = loop 0 0
 
 rsetURL :: Word8 -> Word8
 rsetURL !w = W8# (indexWord8OffAddr# rsetTable (word2Int# widx))
-  where !(W# widx) = integralUpsize w
+  where !(W# widx) = fromIntegral w
         !rsetTable = "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\
                      \\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\
                      \\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x3e\xff\xff\
@@ -232,7 +231,7 @@ rsetURL !w = W8# (indexWord8OffAddr# rsetTable (word2Int# widx))
 
 rsetOpenBSD :: Word8 -> Word8
 rsetOpenBSD !w = W8# (indexWord8OffAddr# rsetTable (word2Int# widx))
-  where !(W# widx) = integralUpsize w
+  where !(W# widx) = fromIntegral w
         !rsetTable = "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\
                      \\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\
                      \\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\x00\x01\
@@ -308,7 +307,7 @@ fromBase64 dst src len
 
         rset :: Word8 -> Word8
         rset !w = W8# (indexWord8OffAddr# rsetTable (word2Int# widx))
-          where !(W# widx) = integralUpsize w
+          where !(W# widx) = fromIntegral w
 
         !rsetTable = "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\
                      \\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\

@@ -11,19 +11,15 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE UndecidableInstances #-}
-#if __GLASGOW_HASKELL__ >= 806
 {-# LANGUAGE NoStarIsType #-}
-#endif
 
 module Data.ByteArray.Sized
     ( ByteArrayN(..)
@@ -59,32 +55,37 @@ module Data.ByteArray.Sized
     , unsafeFromByteArrayAccess
     ) where
 
-import Basement.Imports
-import Basement.NormalForm
-import Basement.Nat
-import Basement.Numerical.Additive ((+))
-import Basement.Numerical.Subtractive ((-))
-
-import Basement.Sized.List (ListN, unListN, toListN)
-
+import           Prelude hiding (length, splitAt, take, drop, replicate)
+import           Data.Typeable (Typeable)
+import           Data.Word (Word8)
+import           Data.Proxy (Proxy(..))
+import           Data.Maybe (fromMaybe)
+import           GHC.TypeLits (KnownNat, Nat, natVal, type (+), type (<=))
+import           Data.Memory.Internal.DeepSeq (NFData)
 import           Foreign.Storable
 import           Foreign.Ptr
-import           Data.Maybe (fromMaybe)
 
 import           Data.Memory.Internal.Compat
 import           Data.Memory.PtrMethods
 
-import Data.Proxy (Proxy(..))
-
 import Data.ByteArray.Types (ByteArrayAccess(..), ByteArray)
 import qualified Data.ByteArray.Types as ByteArray (allocRet)
 
-#if MIN_VERSION_basement(0,0,7)
-import           Basement.BlockN (BlockN)
-import qualified Basement.BlockN as BlockN
-import qualified Basement.PrimType as Base
-import           Basement.Types.OffsetSize (Countable)
-#endif
+-- | A list with a type-level length.
+newtype ListN (n :: Nat) a = ListN [a]
+
+-- | Extract the underlying list from a 'ListN'.
+unListN :: ListN n a -> [a]
+unListN (ListN l) = l
+
+-- | Wrap a list in 'ListN' if its length matches the type-level @n@.
+toListN :: forall n a . KnownNat n => [a] -> Maybe (ListN n a)
+toListN l = go l (fromIntegral (natVal (Proxy @n)) :: Int)
+  where
+    go [] 0 = Just (ListN l)
+    go [] _ = Nothing
+    go _  0 = Nothing
+    go (_:xs) k = go xs (k - 1)
 
 -- | Type class to emulate exactly the behaviour of 'ByteArray' but with
 -- a known length at compile time
@@ -99,7 +100,7 @@ class (ByteArrayAccess c, KnownNat n) => ByteArrayN (n :: Nat) c | c -> n where
 -- | Wrapper around any collection type with the size as type parameter
 --
 newtype SizedByteArray (n :: Nat) ba = SizedByteArray { unSizedByteArray :: ba }
-  deriving (Eq, Show, Typeable, Ord, NormalForm)
+  deriving (Eq, Show, Typeable, Ord, NFData)
 
 -- | create a 'SizedByteArray' from the given 'ByteArrayAccess' if the
 -- size is the same as the target size.
@@ -128,22 +129,6 @@ instance (KnownNat n, ByteArray ba) => ByteArrayN n (SizedByteArray n ba) where
         pure (a, SizedByteArray ba)
       where
         n = fromInteger $ natVal p
-
-#if MIN_VERSION_basement(0,0,7)
-instance ( ByteArrayAccess (BlockN n ty)
-         , PrimType ty
-         , KnownNat n
-         , Countable ty n
-         , KnownNat nbytes
-         , nbytes ~ (Base.PrimSize ty * n)
-         ) => ByteArrayN nbytes (BlockN n ty) where
-    allocRet _ f = do
-        mba <- BlockN.new @n
-        a   <- BlockN.withMutablePtrHint True False mba (f . castPtr)
-        ba  <- BlockN.freeze mba
-        return (a, ba)
-#endif
-
 
 -- | Allocate a new bytearray of specific size, and run the initializer on this memory
 alloc :: forall n ba p . (ByteArrayN n ba, KnownNat n)
@@ -189,7 +174,7 @@ pack l = inlineUnsafeCreate @n (fill $ unListN l)
 
 -- | Un-pack a bytearray into a list of bytes
 unpack :: forall n ba
-        . (ByteArrayN n ba, KnownNat n, NatWithinBound Int n, ByteArrayAccess ba)
+        . (ByteArrayN n ba, KnownNat n, ByteArrayAccess ba)
        => ba -> ListN n Word8
 unpack bs =  fromMaybe (error "the impossible appened") $ toListN @n $ loop 0
   where !len = length bs

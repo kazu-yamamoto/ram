@@ -37,10 +37,6 @@ import           Data.Memory.Internal.Compat      (unsafeDoIO)
 import           Data.ByteArray.Types
 import           Data.Typeable
 
-#ifdef MIN_VERSION_basement
-import           Basement.NormalForm
-#endif
-import           Basement.IntegralConv
 
 -- | Simplest Byte Array
 data Bytes = Bytes (MutableByteArray# RealWorld)
@@ -65,10 +61,6 @@ instance Monoid Bytes where
 #endif
 instance NFData Bytes where
     rnf b = b `seq` ()
-#ifdef MIN_VERSION_basement
-instance NormalForm Bytes where
-    toNormalForm b = b `seq` ()
-#endif
 instance ByteArrayAccess Bytes where
     length        = bytesLength
     withByteArray = withBytes
@@ -207,7 +199,7 @@ bytesUnpackChars (Bytes mba) xs = chunkLoop 0#
     rChar :: Int# -> IO Char
     rChar idx = IO $ \s ->
         case readWord8Array# mba idx s of
-            (# s2, w #) -> (# s2, chr (integralUpsize (W8# w)) #)
+            (# s2, w #) -> (# s2, chr (fromIntegral (W8# w)) #)
 
 {-
 bytesShowHex :: Bytes -> String

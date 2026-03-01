@@ -1,3 +1,24 @@
+## 0.19
++ Forked from memory
++ Dropped all dependencies for basement and the like
+
+Removed all `basement` package dependencies from the `memory` Haskell library (v0.18.0), replacing them with equivalents from `base`, `ghc-prim`, `deepseq`, and standard libraries. Also rewrote the test suite to eliminate `foundation` and `basement` test framework dependencies.
+
+### Library Changes
+- `Data.ByteArray.Bytes`: removed `Basement.IntegralConv` (→ `fromIntegral`), removed `Basement.NormalForm` conditional instances
+- `Data.ByteArray.ScrubbedBytes`: removed `Basement.NormalForm` conditional instances
+- `Data.ByteArray.Sized`: removed `Basement.Imports`, `Basement.Nat`, `Basement.Sized.List`, `Basement.BlockN`, etc.; defined `ListN` locally; imported from `GHC.TypeLits`, `Data.Proxy`, `Data.Memory.Internal.DeepSeq`
+- `Data.ByteArray.Types`: removed entire `#ifdef WITH_BASEMENT_SUPPORT` block (Block/UArray/String instances)
+- `Data.ByteArray.Methods`: removed basement `SPECIALIZE` pragmas
+- `Data.Memory.Encoding.Base16/32/64`: replaced `Basement.Bits` with `Data.Bits`, replaced `integralUpsize` with `fromIntegral`
+- `Data.Memory.Hash.FNV`: replaced `.^.` with `xor`, `integralUpsize` with `fromIntegral`
+
+### Test Suite Changes
+- Replaced `foundation`/`Foundation.Check` test framework with `tasty` + `QuickCheck`
+- Implemented custom `Test.Tasty.Providers` types (`QCTest`, `IOTest`) in `Imports.hs` to avoid needing `tasty-quickcheck` and `tasty-hunit` (not pre-built in nix store)
+- Rewrote `Tests.hs`, `SipHash.hs`, `Utils.hs` to use new test framework
+- Created `/projects/memory/cabal.project` with `tests: True`
+
 ## 0.18
 
 * drop support for ghc < 8.8

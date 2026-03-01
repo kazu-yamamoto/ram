@@ -23,8 +23,7 @@ module Data.Memory.Encoding.Base32
 
 import           Data.Memory.Internal.Compat
 import           Data.Word
-import           Basement.Bits
-import           Basement.IntegralConv
+import           Data.Bits ((.&.), (.|.))
 import           GHC.Prim
 import           GHC.Word
 import           Control.Monad
@@ -88,19 +87,19 @@ toBase32Per5Bytes (!i1, !i2, !i3, !i4, !i5) =
     (index o1, index o2, index o3, index o4, index o5, index o6, index o7, index o8)
   where
     -- 1111 1000 >> 3
-    !o1 = (i1 .&. 0xF8) .>>. 3
+    !o1 = (i1 .&. 0xF8) `unsafeShiftR` 3
     -- 0000 0111 << 2 | 1100 0000 >> 6
-    !o2 = ((i1 .&. 0x07) .<<. 2) .|. ((i2 .&. 0xC0) .>>. 6)
+    !o2 = ((i1 .&. 0x07) `unsafeShiftL` 2) .|. ((i2 .&. 0xC0) `unsafeShiftR` 6)
     -- 0011 1110 >> 1
-    !o3 = ((i2 .&. 0x3E) .>>. 1)
+    !o3 = ((i2 .&. 0x3E) `unsafeShiftR` 1)
     -- 0000 0001 << 4 | 1111 0000 >> 4
-    !o4 = ((i2 .&. 0x01) .<<. 4) .|. ((i3 .&. 0xF0) .>>. 4)
+    !o4 = ((i2 .&. 0x01) `unsafeShiftL` 4) .|. ((i3 .&. 0xF0) `unsafeShiftR` 4)
     -- 0000 1111 << 1 | 1000 0000 >> 7
-    !o5 = ( (i3 .&. 0x0F) .<<. 1) .|. ((i4 .&. 0x80) .>>. 7)
+    !o5 = ((i3 .&. 0x0F) `unsafeShiftL` 1) .|. ((i4 .&. 0x80) `unsafeShiftR` 7)
     -- 0111 1100 >> 2
-    !o6 = (i4 .&. 0x7C) .>>. 2
+    !o6 = (i4 .&. 0x7C) `unsafeShiftR` 2
     -- 0000 0011 << 3 | 1110 0000 >> 5
-    !o7 = ((i4 .&. 0x03) .<<. 3) .|. ((i5 .&. 0xE0) .>>. 5)
+    !o7 = ((i4 .&. 0x03) `unsafeShiftL` 3) .|. ((i5 .&. 0xE0) `unsafeShiftR` 5)
     -- 0001 1111
     !o8 = i5 .&. 0x1F
 
@@ -108,7 +107,7 @@ toBase32Per5Bytes (!i1, !i2, !i3, !i4, !i5) =
 
     index :: Word8 -> Word8
     index idx = W8# (indexWord8OffAddr# set (word2Int# widx))
-      where !(W# widx) = integralUpsize idx
+      where !(W# widx) = fromIntegral idx
 
 -- | Get the length needed for the destination buffer for a base32 decoding.
 --
@@ -236,7 +235,7 @@ fromBase32Per8Bytes (i1, i2, i3, i4, i5, i6, i7, i8) =
   where
     rset :: Word8 -> Word8
     rset w = W8# (indexWord8OffAddr# rsetTable (word2Int# widx))
-      where !(W# widx) = integralUpsize w
+      where !(W# widx) = fromIntegral w
 
     !rsetTable = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
                  \\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\
