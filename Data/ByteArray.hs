@@ -9,6 +9,9 @@
 --
 -- This module should be imported qualified.
 --
+{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE UnboxedTuples #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 module Data.ByteArray
     (

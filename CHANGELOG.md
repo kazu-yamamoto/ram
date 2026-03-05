@@ -1,3 +1,11 @@
+## 0.21.1
++ Reverted 0.21.0 changes: restored custom Base16/Base32/Base64 encode/decode,
+  the GHC.Prim-based `Bytes` implementation, and `readWord8OffAddr#`-based FNV
+  hashing. The `base16`, `base32`, `base64`, and `text` dependencies are removed
+  again.
++ Deleted `Data.Memory.Internal.CompatPrim64` (unreferenced).
++ Added GitHub Actions CI (nix + cabal matrix).
+
 ## 0.21.0
 
 + `Data.ByteArray.Encoding`: replaced custom Base16/Base32/Base64 encode/decode
