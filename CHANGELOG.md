@@ -3,7 +3,7 @@
   Restore custom Base16/Base32/Base64 encode/decode, the GHC.Prim-based `Bytes`
   implementation, and the `readWord8OffAddr#`-based FNV hashing.
 + Removed dependencies: `base16`, `base32`, `base64`, `text`.
-+ Restored `Data.Memory.Internal.CompatPrim64`.
++ Deleted `Data.Memory.Internal.CompatPrim64` (unreferenced).
 
 ## 0.20.1
 + Remove `WITH_BYTESTRING_SUPPORT` CPP flag. `ByteString` instances for

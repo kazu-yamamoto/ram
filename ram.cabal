@@ -65,7 +65,6 @@ library
     Data.Memory.Hash.SipHash
     Data.Memory.Internal.Compat
     Data.Memory.Internal.CompatPrim
-    Data.Memory.Internal.CompatPrim64
     Data.Memory.Internal.Imports
 
   exposed-modules:  Data.ByteArray.Sized
