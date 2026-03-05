@@ -20,10 +20,6 @@ description:
 
   * Hashing : FNV, SipHash
 
-  Legacy note: This package shouldn't be used for new software.
-  It only exists and is maintained to give other packages time to
-  rewrite their software to use better libraries.
-
 license:         BSD-3-Clause
 license-file:    LICENSE
 copyright:       Vincent Hanquez <vincent@snarc.org>
@@ -69,18 +65,15 @@ library
     Data.Memory.Hash.SipHash
     Data.Memory.Internal.Compat
     Data.Memory.Internal.CompatPrim
+    Data.Memory.Internal.CompatPrim64
     Data.Memory.Internal.Imports
 
   exposed-modules:  Data.ByteArray.Sized
   build-depends:
     , base        <4.23
-    , base16      >=1.0 && <2
-    , base32      >=0.4 && <1
-    , base64      >=1.0 && <2
     , bytestring  <0.13
     , deepseq     >=1.1 && <1.17
     , ghc-prim    <0.14
-    , text        >=1.0 && <3
 
   -- FIXME armel or mispel is also little endian.
   -- might be a good idea to also add a runtime autodetect mode.
